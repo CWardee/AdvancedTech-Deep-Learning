@@ -20,7 +20,7 @@ from tqdm import tqdm
 import os
 
 
-# Classifier variables
+# Classifier variables ///////////////////////////////////////////////////////
 classifier = Sequential()
 classifier.add(Convolution2D(32, 3, 3, input_shape = (64, 64, 3), activation = "relu"))
 classifier.add(MaxPooling2D(pool_size = (2, 2)))
@@ -32,7 +32,7 @@ classifier.compile(optimizer = "adam", loss = "binary_crossentropy", metrics = [
 
 
 
-
+# initial classification training ////////////////////////////////////////////
 from keras.preprocessing.image import ImageDataGenerator
 
 train_datagen = ImageDataGenerator(
@@ -58,7 +58,7 @@ test_set = train_datagen.flow_from_directory(
 classifier.fit_generator(
         training_set,
         steps_per_epoch=15,
-        epochs=20,
+        epochs=15,
         validation_data=test_set,
         validation_steps=4)
 
@@ -68,7 +68,6 @@ GENERATE_SQUARE = 32 * GENERATE_RES # rows/cols (should be square)
 IMAGE_CHANNELS = 3
 DATA_PATH = 'data'
 
-
 # Preview image 
 PREVIEW_ROWS = 4
 PREVIEW_COLS = 7
@@ -77,11 +76,9 @@ SAVE_FREQ = 100
 
 # Size vector to generate images from
 SEED_SIZE = 200
-EPOCHS = 34
+EPOCHS = 30
 EPOCHS = EPOCHS * 100
 BATCH_SIZE = 16
-
-
 
 currentDataSet = 0
 print(f"Will generate {GENERATE_SQUARE}px square images.")
@@ -97,9 +94,9 @@ if not os.path.isfile(dataSet_binaryPath):
 
   dataSetArray = []
   if currentDataSet == 0:
-      dataSetLength = os.path.join(DATA_PATH,'dirt_data_set')
+      dataSetLength = os.path.join(DATA_PATH,'data_set_1')
   elif currentDataSet == 1:
-      dataSetLength = os.path.join(DATA_PATH,'frilly_data_set')
+      dataSetLength = os.path.join(DATA_PATH,'data_set_2')
       
   for filename in tqdm(os.listdir(dataSetLength)):
       
@@ -208,6 +205,7 @@ def define_discriminator(image_shape):
 
 
 
+# define the save model //////////////////////////////////////////////////////
 def save_images(cnt,noise):
   from keras.preprocessing import image
   image_array = numpyArray.full(( 
@@ -256,7 +254,7 @@ def save_images(cnt,noise):
     
         
   else:
-        output_path = os.path.join(DATA_PATH,'frilly_output_file')
+        output_path = os.path.join(DATA_PATH,'grass_output_file')
         prediction = "Grass has been generated"
         
         print(prediction)
@@ -270,10 +268,7 @@ def save_images(cnt,noise):
       
       
       
-      
-  
-  
-  
+# define the initial startup and loop/////////////////////////////////////////      
 image_shape = (GENERATE_SQUARE,GENERATE_SQUARE,IMAGE_CHANNELS)
 optimizer = Adam(1.5e-4,0.5) # learning rate and momentum adjusted from paper
 
@@ -292,21 +287,18 @@ validity = discriminator(generated_image)
 combined = Model(random_input,validity)
 combined.compile(loss="binary_crossentropy",optimizer=optimizer,metrics=["accuracy"])
 
-
-
-
 y_real = numpyArray.ones((BATCH_SIZE,1))
 y_fake = numpyArray.zeros((BATCH_SIZE,1))
 
 fixed_seed = numpyArray.random.normal(0, 1, (PREVIEW_ROWS * PREVIEW_COLS, SEED_SIZE))
-
-
 
 GRASS_COUNT = 1
 cnt = 1
 maxDataSetNumber = 2
 dataSetNumber = 0
 
+
+# define the loop/////////////////////////////////////////////////////////////     
 for dataSetNumber in range(maxDataSetNumber):
                          
     for epoch in range(EPOCHS):
